@@ -85,7 +85,7 @@ export default function PatientSignup() {
           role: "patient",
         });
 
-        id;
+        
 if (roleError) {
   console.error("Role assignment error:", roleError);
   throw new Error(`Failed to assign role: ${roleError.message}`);
@@ -97,7 +97,7 @@ if (roleError) {
         });
 
         navigate("/patient-login");
-      }
+      
     } catch (error: any) {
     console.error("Signup error:", error);
       toast({
