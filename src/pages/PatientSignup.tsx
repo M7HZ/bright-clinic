@@ -54,25 +54,42 @@ export default function PatientSignup() {
 
       if (authError) throw authError;
 
-      if (authData.user) {
+      if (!authData.user) {
+        throw new Error("Failed to create user account"); 
+      } 
+      // IMPORTANT: Wait a moment for the auth session to be established 
+      await new Promise(resolve => setTimeout(resolve, 100)); 
+      
+      const userId = authData.user.id;
         // Create profile
-        const { error: profileError } = await supabase.from("profiles").insert({
-          user_id: authData.user.id,
+        const { error: profileError } = await supabase
+          .from("profiles")
+          .insert({
+          user_id: userId,
           full_name: formData.fullName,
-          phone: formData.phone,
+          phone: formData.phone || null,
           date_of_birth: formData.dateOfBirth || null,
           address: formData.address || null,
         });
 
-        if (profileError) throw profileError;
+        if (profileError) {
+          console.error("Profile creation error:", profileError);
+          throw new Error('Failed to create profile: ${profileError.message}');
+        }
 
         // Assign patient role
-        const { error: roleError } = await supabase.from("user_roles").insert({
-          user_id: authData.user.id,
+        const { error: roleError } = await supabase
+          .from("user_roles")
+          .insert({
+          user_id: userId,
           role: "patient",
         });
 
-        if (roleError) throw roleError;
+        id;
+if (roleError) {
+  console.error("Role assignment error:", roleError);
+  throw new Error(`Failed to assign role: ${roleError.message}`);
+}
 
         toast({
           title: "Success!",
@@ -82,12 +99,14 @@ export default function PatientSignup() {
         navigate("/patient-login");
       }
     } catch (error: any) {
+    console.error("Signup error:", error);
       toast({
         title: "Error",
         description: error.message || "Failed to create account",
         variant: "destructive",
       });
-    } finally {
+    } 
+  finally {
       setIsLoading(false);
     }
   };
