@@ -30,13 +30,46 @@ export default function PatientLogin() {
 
       if (error) throw error;
 
+      if (!data.user) {
+        throw new Error("Login failed - no user data returned");
+      }
+
+      console.log("User logged in:", data.user.id);
+
+      // Optional: Verify the user is actually a patient
+      const { data: roleData, error: roleError } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", data.user.id)
+        .single();
+
+      if (roleError) {
+        console.error("Role fetch error:", roleError);
+        // Continue anyway - they logged in successfully
+      }
+
+      if (roleData) {
+        console.log("User role:", roleData.role);
+        if (roleData.role !== "patient") {
+          throw new Error("This login is for patients only. Staff should use the staff login.");
+        }
+      }
+
+      // Show success toast BEFORE navigation
       toast({
         title: "Success!",
         description: "Welcome back to Mr. Bur Dental",
       });
 
+      // Small delay to ensure toast shows and auth state updates
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Navigate to dashboard
+      console.log("Navigating to patient dashboard");
       navigate("/patient-dashboard");
+
     } catch (error: any) {
+      console.error("Login error:", error);
       toast({
         title: "Error",
         description: error.message || "Invalid credentials",
