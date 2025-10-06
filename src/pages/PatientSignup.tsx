@@ -74,7 +74,7 @@ export default function PatientSignup() {
 
         if (profileError) {
           console.error("Profile creation error:", profileError);
-          throw new Error('Failed to create profile: ${profileError.message}');
+          throw new Error(`Failed to create profile: ${profileError.message}`);
         }
 
         // Assign patient role
