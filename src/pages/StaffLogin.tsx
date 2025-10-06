@@ -30,26 +30,52 @@ export default function StaffLogin() {
 
       if (error) throw error;
 
+      if (!data.user) {
+        throw new Error("Login failed - no user data returned");
+      }
+
+      console.log("User logged in:", data.user.id);
+
       // Check user role to determine redirect
-      const { data: roleData } = await supabase
+      const { data: roleData, error: roleError } = await supabase
         .from("user_roles")
         .select("role")
         .eq("user_id", data.user.id)
         .single();
 
-      if (roleData?.role === "doctor") {
-        navigate("/doctor-dashboard");
-      } else if (roleData?.role === "clerk_admin") {
-        navigate("/admin-dashboard");
-      } else {
-        throw new Error("Invalid staff credentials");
+      if (roleError) {
+        console.error("Role fetch error:", roleError);
+        throw new Error("Failed to fetch user role. Please contact support.");
       }
 
+      if (!roleData) {
+        throw new Error("No role assigned to this user. Please contact support.");
+      }
+
+      console.log("User role:", roleData.role);
+
+      // Show success toast BEFORE navigation
       toast({
         title: "Success!",
         description: "Welcome to the staff portal",
       });
+
+      // Small delay to ensure toast shows and auth state updates
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Navigate based on role
+      if (roleData.role === "doctor") {
+        console.log("Navigating to doctor dashboard");
+        navigate("/doctor-dashboard");
+      } else if (roleData.role === "clerk_admin") {
+        console.log("Navigating to admin dashboard");
+        navigate("/admin-dashboard");
+      } else {
+        throw new Error("Invalid staff credentials - only doctors and admins can access this portal");
+      }
+
     } catch (error: any) {
+      console.error("Login error:", error);
       toast({
         title: "Error",
         description: error.message || "Invalid credentials",
