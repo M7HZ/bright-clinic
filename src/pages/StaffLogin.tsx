@@ -129,9 +129,9 @@ export default function StaffLogin() {
                       Remember me
                     </Label>
                   </div>
-                  <a href="#" className="text-sm text-primary hover:underline">
+                  <Link to="/forgot-password" className="text-sm text-primary hover:underline">
                     Forgot password?
-                  </a>
+                  </Link>
                 </div>
 
                 <Button type="submit" className="w-full" disabled={isLoading}>
@@ -144,6 +144,13 @@ export default function StaffLogin() {
                 <a href="#contact" className="text-primary hover:underline">
                   Contact Support
                 </a>
+              </div>
+
+              <div className="pt-6 text-center text-sm">
+                <span className="text-muted-foreground">Don't have an account? </span>
+                <Link to="/staff-signup" className="text-primary hover:underline font-medium">
+                  Sign up as staff
+                </Link>
               </div>
             </div>
           </Card>
